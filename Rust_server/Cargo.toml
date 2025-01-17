@@ -1,0 +1,16 @@
+[package]
+name = "rust_server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tonic = "0.12.3"
+prost = "0.13.4"
+tokio = { version = "1.0", features = ["full"] }
+azure_storage_blobs = "0.21.0"
+azure_core = "0.21.0"
+dotenv = "0.15"
+uuid = { version = "1.0", features = ["v4"] }
+
+[build-dependencies]
+tonic-build = "0.12.3"

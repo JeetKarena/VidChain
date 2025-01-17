@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+service UserService {
+    rpc AddUser (AddUserRequest) returns (AddUserResponse);
+    rpc GetUser (GetUserRequest) returns (GetUserResponse);
+}
+
+service VideoService {
+    rpc AddVideo (AddVideoRequest) returns (AddVideoResponse);
+    rpc GetVideo (GetVideoRequest) returns (GetVideoResponse);
+}
+
+message AddUserRequest {
+    string username = 1;
+    string email = 2;
+    string passwordHash = 3;
+    string role = 4;
+}
+
+message AddUserResponse {
+    string id = 1;
+}
+
+message GetUserRequest {
+    string id = 1;
+}
+
+message GetUserResponse {
+    string id = 1;
+    string username = 2;
+    string email = 3;
+    string role = 4;
+}
+
+message AddVideoRequest {
+    string title = 1;
+    string uploaderId = 2;
+    string storageUrl = 3;
+}
+
+message AddVideoResponse {
+    string id = 1;
+}
+
+message GetVideoRequest {
+    string id = 1;
+}
+
+message GetVideoResponse {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    repeated string tags = 4;
+    string uploaderId = 5;
+    string storageUrl = 6;
+    string thumbnailUrl = 7;
+    string createdAt = 8;
+    string updatedAt = 9;
+    VideoMetadata metadata = 10;
+}
+
+message VideoMetadata {
+    float duration = 1;
+    string resolution = 2;
+    string codec = 3;
+    float bitrate = 4;
+    float frameRate = 5;
+}
