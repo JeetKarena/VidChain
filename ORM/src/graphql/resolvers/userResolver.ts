@@ -3,10 +3,20 @@ import { IUser, User } from "../../models/User";
 const userResolver = {
   Query: {
     getUser: async (_: any, { id }: { id: string }): Promise<IUser | null> => {
-      return await User.findById(id);
+      try {
+        return await User.findById(id);
+      } catch (error) {
+        console.error(`Error fetching user with id ${id}:`, error);
+        throw new Error("Error fetching user");
+      }
     },
     getAllUsers: async (): Promise<IUser[]> => {
-      return await User.find();
+      try {
+        return await User.find();
+      } catch (error) {
+        console.error("Error fetching all users:", error);
+        throw new Error("Error fetching users");
+      }
     },
   },
   Mutation: {
@@ -23,20 +33,35 @@ const userResolver = {
         };
       }
     ): Promise<IUser> => {
-      const { username, email, passwordHash, role } = input;
-      const user = new User({ username, email, passwordHash, role });
-      return await user.save();
+      try {
+        const { username, email, passwordHash, role } = input;
+        const user = new User({ username, email, passwordHash, role });
+        return await user.save();
+      } catch (error) {
+        console.error("Error creating user:", error);
+        throw new Error("User creation failed");
+      }
     },
     updateUser: async (
       _: any,
       { id, input }: { id: string; input: Partial<IUser> }
     ): Promise<IUser | null> => {
-      const { passwordHash, ...updateData } = input;
-      return await User.findByIdAndUpdate(id, updateData, { new: true });
+      try {
+        const { passwordHash, ...updateData } = input;
+        return await User.findByIdAndUpdate(id, updateData, { new: true });
+      } catch (error) {
+        console.error(`Error updating user with id ${id}:`, error);
+        throw new Error("User update failed");
+      }
     },
     deleteUser: async (_: any, { id }: { id: string }): Promise<boolean> => {
-      const result = await User.findByIdAndDelete(id);
-      return result !== null;
+      try {
+        const result = await User.findByIdAndDelete(id);
+        return result !== null;
+      } catch (error) {
+        console.error(`Error deleting user with id ${id}:`, error);
+        throw new Error("User deletion failed");
+      }
     },
   },
   Subscription: {

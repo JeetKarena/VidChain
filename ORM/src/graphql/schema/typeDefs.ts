@@ -10,6 +10,7 @@ export const typeDefs = gql`
     role: String!
     createdAt: String!
     updatedAt: String!
+    videos: [Video!]!
   }
 
   type Video {
@@ -17,7 +18,7 @@ export const typeDefs = gql`
     video_id: String!
     title: String!
     description: String
-    owner_id: String!
+    owner_id: User!
     visibility: String!
     created_at: String!
     updated_at: String!
@@ -73,11 +74,10 @@ export const typeDefs = gql`
   }
 
   input CreateVideoInput {
-    video_id: String!
     title: String!
     description: String
-    owner_id: String!
-    visibility: String!
+    owner_id: ID!
+    visibility: String
   }
 
   input UpdateVideoInput {

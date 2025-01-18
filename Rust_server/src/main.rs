@@ -1,42 +1,29 @@
-/* fn main() {
-    println!("Hello, world!");
-}
- */
+use std::sync::Arc;
+use dotenv::dotenv;
+use tonic::transport::Server;
 
- use tonic::transport::Server;
- use dotenv::dotenv;
- 
- mod error;
- mod video_service;
- mod proto {
-     tonic::include_proto!("video_service");
- }
- 
- use video_service::VideoServiceImpl;
- use proto::video_service_server::VideoServiceServer;
- 
- #[tokio::main]
- async fn main() -> Result<(), Box<dyn std::error::Error>> {
-     dotenv().ok();
-     
-     let addr = "[::1]:50051".parse()?;
-     let service = VideoServiceImpl::new().await?;
-     
-     println!("Video service server running on {}", addr);
-     
-     Server::builder()
-         .add_service(VideoServiceServer::new(service))
-         .serve(addr)
-         .await?;
- 
-     Ok(())
- }
+mod error;
+mod models;
+mod service;
+mod storage;
 
-/* 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+use service::video_service::VideoServiceImpl;
+use storage::local::LocalStorage;
 
-    tonic_build::compile_protos("proto/video_service.proto")?;
-
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenv().ok();
+    
+    let storage = Arc::new(LocalStorage::new("./data/chunks"));
+    let video_service = VideoServiceImpl::new(storage);
+    
+    let addr = "[::1]:50051".parse()?;
+    println!("VideoService server listening on {}", addr);
+    
+    Server::builder()
+        .add_service(proto::video_service_server::VideoServiceServer::new(video_service))
+        .serve(addr)
+        .await?;
+    
     Ok(())
-
-} */
+}

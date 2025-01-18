@@ -1,34 +1,27 @@
-use std::fmt;
+use thiserror::Error;
 use tonic::Status;
 
-#[derive(Debug)]
-pub enum VideoServiceError {
-    StorageError(String),
-    ValidationError(String),
-    ChunkProcessingError(String),
-    EnvironmentError(String),
+#[derive(Error, Debug)]
+pub enum ServiceError {
+    #[error("Storage error: {0}")]
+    Storage(String),
+    
+    #[error("Validation error: {0}")]
+    Validation(String),
+    
+    #[error("File size exceeds limit: {0}")]
+    FileSizeExceeded(String),
+    
+    #[error("IO error: {0}")]
+    IO(#[from] std::io::Error),
 }
 
-impl fmt::Display for VideoServiceError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::StorageError(msg) => write!(f, "Storage error: {}", msg),
-            Self::ValidationError(msg) => write!(f, "Validation error: {}", msg),
-            Self::ChunkProcessingError(msg) => write!(f, "Chunk processing error: {}", msg),
-            Self::EnvironmentError(msg) => write!(f, "Environment error: {}", msg),
-        }
-    }
-}
-
-impl std::error::Error for VideoServiceError {}
-
-impl From<VideoServiceError> for Status {
-    fn from(error: VideoServiceError) -> Self {
-        match error {
-            VideoServiceError::ValidationError(msg) => Status::invalid_argument(msg),
-            VideoServiceError::StorageError(msg) => Status::internal(msg),
-            VideoServiceError::ChunkProcessingError(msg) => Status::internal(msg),
-            VideoServiceError::EnvironmentError(msg) => Status::failed_precondition(msg),
+impl From<ServiceError> for Status {
+    fn from(err: ServiceError) -> Self {
+        match err {
+            ServiceError::Validation(msg) => Status::invalid_argument(msg),
+            ServiceError::FileSizeExceeded(msg) => Status::resource_exhausted(msg),
+            _ => Status::internal(err.to_string()),
         }
     }
 }

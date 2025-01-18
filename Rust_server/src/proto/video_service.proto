@@ -4,20 +4,50 @@ package video_service;
 service VideoService {
     rpc UploadVideo (stream ChunkData) returns (UploadResponse);
     rpc DownloadVideo (DownloadRequest) returns (stream ChunkData);
+    rpc NotifyCompletion (NotifyCompletionRequest) returns (NotifyCompletionResponse);
 }
 
 message ChunkData {
     bytes content = 1;
     string video_id = 2;
     int32 chunk_index = 3;
+    string hash = 4;
 }
 
 message UploadResponse {
     string video_id = 1;
     bool success = 2;
     string message = 3;
+    VideoMetadata metadata = 4;
 }
 
 message DownloadRequest {
     string video_id = 1;
+}
+
+message NotifyCompletionRequest {
+    string video_id = 1;
+    bool success = 2;
+}
+
+message NotifyCompletionResponse {
+    string message = 1;
+}
+
+message VideoMetadata {
+    string video_id = 1;
+    int32 total_chunks = 2;
+    int64 total_size = 3;
+    repeated ChunkMetadata chunks = 4;
+    string created_at = 5;
+    string storage_type = 6;
+}
+
+message ChunkMetadata {
+    string chunk_id = 1;
+    string video_id = 2;
+    string blob_path = 3;
+    string hash = 4;
+    int32 index = 5;
+    int64 size = 6;
 }
